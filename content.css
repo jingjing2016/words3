@@ -1,13 +1,39 @@
 /* Word Memory Assistant - Content Styles */
 
+/* Default highlight style - used by getHighlightClass(STYLE_DEFAULT) in content.js */
 .word-memory-highlight {
-  background-color: #ff6b6b !important;
-  color: white !important;
+  background-color: #FFFACD !important; /* Light yellow / Khaki */
+  color: black !important; /* Ensure readability on yellow */
   padding: 1px 3px !important;
   border-radius: 3px !important;
-  font-weight: bold !important;
+  /* font-weight: bold !important; -- Removed to make it less visually dominant */
   text-decoration: none !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important; /* Slightly reduced shadow */
+}
+
+/* Green text style - used by getHighlightClass(STYLE_GREEN) */
+.word-memory-highlight-green {
+  color: green !important;
+  background-color: transparent !important;
+  text-decoration: none !important;
+  font-weight: normal !important; /* Ensure it's not bold if original text wasn't */
+  padding: 1px 0 !important; /* Minimal vertical padding */
+  margin: 0 !important; /* Ensure no extra margins */
+  border-radius: 0 !important; /* No border radius unless desired */
+  box-shadow: none !important; /* No shadow */
+}
+
+/* Underline style - used by getHighlightClass(STYLE_UNDERLINE) */
+.word-memory-highlight-underline {
+  text-decoration: underline !important;
+  text-decoration-color: blue !important; /* Optional: make underline color distinct */
+  background-color: transparent !important;
+  color: inherit !important; /* Inherit original text color */
+  font-weight: normal !important; /* Ensure it's not bold */
+  padding: 1px 0 !important; /* Minimal vertical padding */
+  margin: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 .word-memory-message {
