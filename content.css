@@ -23,6 +23,16 @@
   box-shadow: none !important; /* No shadow */
 }
 
+/* New Blue Highlight style - used by getHighlightClass(STYLE_BLUE_HIGHLIGHT) */
+.word-memory-highlight-blue-highlight {
+  background-color: cornflowerblue !important;
+  color: white !important;
+  padding: 1px 3px !important;
+  border-radius: 3px !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
 /* Underline style - used by getHighlightClass(STYLE_UNDERLINE) */
 .word-memory-highlight-underline {
   text-decoration: underline !important;

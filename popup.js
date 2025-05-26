@@ -54,6 +54,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  function formatStyleName(style) {
+    if (!style) return 'Default'; // Should ideally not happen if item.style always has a value
+
+    switch (style) {
+      case 'default':
+        return 'Red Highlight';
+      case 'blue_highlight':
+        return 'Blue Highlight';
+      case 'underline':
+        return 'Underline';
+      case 'green': // For backward compatibility with old "green" style
+        return 'Green';
+      default:
+        // Fallback for any other unexpected styles: capitalize first letter, replace underscores
+        return style.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    }
+  }
+
   // wordsArray is an array of objects: [{word: "text", style: "styleName"}, ...]
   function displayWords(wordsArray) {
     wordCountEl.textContent = wordsArray.length;
@@ -74,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const wordsHTML = wordsArray.map(item => `
       <div class="word-item">
-        <span class="word-text">${item.word} <span class="word-style">(${item.style || 'default'})</span></span>
+        <span class="word-text">${item.word} <span class="word-style">(${formatStyleName(item.style || 'default')})</span></span>
         <button class="remove-btn" data-word="${item.word}">Remove</button>
       </div>
     `).join('');

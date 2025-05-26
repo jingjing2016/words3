@@ -9,8 +9,9 @@ let mutationObserver = null;
 
 // Default style
 const STYLE_DEFAULT = 'default';
-const STYLE_GREEN = 'green';
+const STYLE_GREEN = 'green'; // Keep for existing data
 const STYLE_UNDERLINE = 'underline';
+const STYLE_BLUE_HIGHLIGHT = 'blue_highlight'; // New style for Hotkey 3
 
 // Load saved words from storage
 chrome.storage.local.get(['savedWordsMap'], function(result) {
@@ -106,12 +107,11 @@ function handleHotkeyAction(key, word) {
   switch (key) {
     case '2':
       if (wordIsSaved) {
-        if (currentStyle === STYLE_GREEN || currentStyle === STYLE_UNDERLINE) {
+        if (currentStyle === STYLE_GREEN || currentStyle === STYLE_UNDERLINE || currentStyle === STYLE_BLUE_HIGHLIGHT) { // Condition updated
           // Change to default style
           applyStyle(word, STYLE_DEFAULT);
           showMessage(`"${word}" style changed to default.`, 'info');
-        } else {
-          // If default or any other, remove it (toggle off)
+        } else { // This will now only be true if currentStyle is STYLE_DEFAULT
           removeWordFromList(word);
           // message is shown by removeWordFromList
         }
@@ -121,16 +121,17 @@ function handleHotkeyAction(key, word) {
         // message is shown by addWordToList
       }
       break;
-    case '3':
+    case '3': // Hotkey 3 now applies/updates to blue_highlight
       if (wordIsSaved) {
-        if (currentStyle !== STYLE_GREEN) {
-          applyStyle(word, STYLE_GREEN);
-          showMessage(`"${word}" style changed to green.`, 'info');
+        if (currentStyle !== STYLE_BLUE_HIGHLIGHT) {
+          applyStyle(word, STYLE_BLUE_HIGHLIGHT);
+          showMessage(`"${word}" style changed to blue highlight.`, 'info');
         } else {
-          showMessage(`"${word}" is already green.`, 'info');
+          showMessage(`"${word}" is already blue highlighted.`, 'info');
         }
       } else {
-        addWordToList(word, STYLE_GREEN);
+        addWordToList(word, STYLE_BLUE_HIGHLIGHT);
+        // message is shown by addWordToList
       }
       break;
     case '4':
@@ -162,7 +163,12 @@ function getWordUnderCursor(e) {
   let word = null;
 
   // Priority 1: Check if the cursor is directly over a highlight span
-  const highlightClasses = ['word-memory-highlight', `word-memory-highlight-${STYLE_GREEN}`, `word-memory-highlight-${STYLE_UNDERLINE}`];
+  const highlightClasses = [
+    'word-memory-highlight', // Default
+    `word-memory-highlight-${STYLE_GREEN}`, // Old green
+    `word-memory-highlight-${STYLE_UNDERLINE}`, // Underline
+    `word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}` // New blue
+  ];
   for (const cls of highlightClasses) {
     if (element.classList.contains(cls)) {
       const textFromHighlight = element.textContent.toLowerCase().trim();
@@ -253,8 +259,9 @@ function saveWordsToStorage() {
 }
 
 function getHighlightClass(style) {
-  if (style === STYLE_GREEN) return `word-memory-highlight-${STYLE_GREEN}`;
+  if (style === STYLE_GREEN) return `word-memory-highlight-${STYLE_GREEN}`; // For existing data
   if (style === STYLE_UNDERLINE) return `word-memory-highlight-${STYLE_UNDERLINE}`;
+  if (style === STYLE_BLUE_HIGHLIGHT) return `word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}`; // New style
   return 'word-memory-highlight'; // Default
 }
 
@@ -271,10 +278,11 @@ function applyStyleToWordOccurrences(word, style, rootNode = document.body) {
           const parentTag = node.parentElement.tagName;
           const parentClassList = node.parentElement.classList;
           if (parentTag === 'SCRIPT' || parentTag === 'STYLE' ||
-              parentClassList.contains('word-memory-highlight') || // Default style
-              parentClassList.contains(`word-memory-highlight-${STYLE_GREEN}`) || // Green style
-              parentClassList.contains(`word-memory-highlight-${STYLE_UNDERLINE}`) || // Underline style
-              node.parentElement.closest('.word-memory-highlight, .word-memory-highlight-green, .word-memory-highlight-underline')) {
+              parentClassList.contains('word-memory-highlight') || // Default
+              parentClassList.contains(`word-memory-highlight-${STYLE_GREEN}`) || // Old Green
+              parentClassList.contains(`word-memory-highlight-${STYLE_UNDERLINE}`) || // Underline
+              parentClassList.contains(`word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}`) || // New Blue
+              node.parentElement.closest('.word-memory-highlight, .word-memory-highlight-green, .word-memory-highlight-underline, .word-memory-highlight-blue-highlight')) {
             return NodeFilter.FILTER_REJECT;
           }
         }
@@ -298,9 +306,10 @@ function applyStyleToWordOccurrences(word, style, rootNode = document.body) {
     
     // Check if parent itself became a highlight (e.g. by sibling node processing)
     const parentClasses = textNode.parentElement.classList;
-    if (parentClasses.contains('word-memory-highlight') || 
+    if (parentClasses.contains('word-memory-highlight') ||
         parentClasses.contains(`word-memory-highlight-${STYLE_GREEN}`) ||
-        parentClasses.contains(`word-memory-highlight-${STYLE_UNDERLINE}`)) {
+        parentClasses.contains(`word-memory-highlight-${STYLE_UNDERLINE}`) ||
+        parentClasses.contains(`word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}`)) {
         return;
     }
 
@@ -339,9 +348,10 @@ function highlightSavedWords() {
 // Remove all highlights for a specific word, regardless of style
 function removeHighlight(word) {
   const highlightSelectors = [
-    '.word-memory-highlight', 
-    `.word-memory-highlight-${STYLE_GREEN}`, 
-    `.word-memory-highlight-${STYLE_UNDERLINE}`
+    '.word-memory-highlight', // Default
+    `.word-memory-highlight-${STYLE_GREEN}`, // Old Green
+    `.word-memory-highlight-${STYLE_UNDERLINE}`, // Underline
+    `.word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}` // New Blue
   ];
   highlightSelectors.forEach(selector => {
     const highlights = document.querySelectorAll(selector);
@@ -390,9 +400,10 @@ function mutationCallback(mutationsList, observer) {
       mutation.addedNodes.forEach(addedNode => {
         if (addedNode.nodeType === Node.ELEMENT_NODE) {
           const classList = addedNode.classList;
-          if (classList && (classList.contains('word-memory-highlight') || // Check all highlight classes
+          if (classList && (classList.contains('word-memory-highlight') ||
               classList.contains(`word-memory-highlight-${STYLE_GREEN}`) ||
-              classList.contains(`word-memory-highlight-${STYLE_UNDERLINE}`)) ||
+              classList.contains(`word-memory-highlight-${STYLE_UNDERLINE}`) ||
+              classList.contains(`word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}`)) ||
               addedNode.closest('.word-memory-message') ||
               addedNode.tagName === 'SCRIPT' || 
               addedNode.tagName === 'STYLE') {
@@ -408,7 +419,8 @@ function mutationCallback(mutationsList, observer) {
           const parentClassList = parentElement.classList;
           if (parentClassList && (parentClassList.contains('word-memory-highlight') ||
               parentClassList.contains(`word-memory-highlight-${STYLE_GREEN}`) ||
-              parentClassList.contains(`word-memory-highlight-${STYLE_UNDERLINE}`)) ||
+              parentClassList.contains(`word-memory-highlight-${STYLE_UNDERLINE}`) ||
+              parentClassList.contains(`word-memory-highlight-${STYLE_BLUE_HIGHLIGHT}`)) ||
               parentElement.closest('.word-memory-message') ||
               parentElement.tagName === 'SCRIPT' ||
               parentElement.tagName === 'STYLE') {
