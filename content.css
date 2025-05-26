@@ -2,13 +2,13 @@
 
 /* Default highlight style - used by getHighlightClass(STYLE_DEFAULT) in content.js */
 .word-memory-highlight {
-  background-color: #FFFACD !important; /* Light yellow / Khaki */
-  color: black !important; /* Ensure readability on yellow */
+  background-color: lightcoral !important; /* Red highlight */
+  color: white !important; /* White text for readability on red */
   padding: 1px 3px !important;
   border-radius: 3px !important;
-  /* font-weight: bold !important; -- Removed to make it less visually dominant */
+  /* font-weight: normal !important; -- Can be set to bold if preferred */
   text-decoration: none !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important; /* Slightly reduced shadow */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important; /* Keep existing shadow style */
 }
 
 /* Green text style - used by getHighlightClass(STYLE_GREEN) */
